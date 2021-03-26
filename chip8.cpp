@@ -19,8 +19,12 @@ void Chip8::init()
     memset(key, 0, sizeof(byte) * KEY_SIZE);
 
     // Load fontset
-    for (int i = 0; i < 80; i++)
+    for (int i = 0; i < FONT_SIZE; i++)
         memory[i] = fontset[i];
+
+    drawFlag = true;
+
+    srand(time(NULL));
 }
 
 void Chip8::loadFile(char *fileName)
@@ -65,11 +69,10 @@ bool Chip8::decodeOpcode()
 {
     byte x, y, n, nn;
     word nnn;
-
-    x = (opcode >> 8) & 0x000F; // Lower 4 bits of the high byte
-    y = (opcode >> 4) & 0x000F; // Lower 4 bits of the high byte
-    n = opcode & 0x000F; // Lowest 4 bits
-    nn = opcode & 0x00FF; // Lowest 8 bits
+    x   = (opcode >> 8) & 0x000F; // Lower 4 bits of the high byte
+    y   = (opcode >> 4) & 0x000F; // Lower 4 bits of the high byte
+    n   = opcode & 0x000F; // Lowest 4 bits
+    nn  = opcode & 0x00FF; // Lowest 8 bits
     nnn = opcode & 0x0FFF; // Lowest 12 bits
 
     // Check the first 4 bits
@@ -78,8 +81,8 @@ bool Chip8::decodeOpcode()
         case 0x0000:
             switch (nn) {
                 case 0x00E0: // 00E0
-                    log("Clear screen");
                     memset(gfx, 0, sizeof(byte) * GFX_SIZE);
+                    drawFlag = true;
                     PC += 2;
                     break;
                 case 0x00EE: // 00EE
@@ -178,8 +181,28 @@ bool Chip8::decodeOpcode()
             PC += 2;
             break;
         case 0xD000: // DXYN
-            log("Draw sprite");
+        {
+            byte pixel;
+            V[0xF] = 0;
+
+            for (byte yline = 0; yline < n; yline++)
+            {
+                pixel = memory[I + yline];
+                for (byte xline = 0; xline < 8; xline++)
+                {
+                    if ((pixel & (0x80 >> xline)) != 0)
+                    {
+                        if (gfx[(x + xline + ((y + yline) * GFX_COLS))] == 1)
+                            V[0xF] = 1;
+                        gfx[x + xline + ((y + yline) * GFX_COLS)] ^= 1;
+                    }
+                }
+            }
+
+            drawFlag = true;
+            PC += 2;
             break;
+        }
         case 0xE000:
             switch (nn)
             {
@@ -235,7 +258,7 @@ bool Chip8::decodeOpcode()
                     PC += 2;
                     break;
                 case 0x33: // FX33
-                    memory[I] = (V[x] % 1000) / 100;
+                    memory[I]   = (V[x] % 1000) / 100;
                     memory[I+1] = (V[x] % 100) / 10;
                     memory[I+2] = (V[x] % 10);
                     PC += 2;

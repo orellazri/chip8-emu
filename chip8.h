@@ -1,9 +1,14 @@
+#include "SFML/Graphics.hpp"
+
 #define MEMORY_SIZE 4096
 #define STACK_SIZE 16
 #define V_SIZE 16
-#define GFX_SIZE 64*32
+#define GFX_COLS 64
+#define GFX_ROWS 32
+#define GFX_SIZE GFX_COLS*GFX_ROWS
 #define KEY_SIZE 16
 #define MAX_GAME_SIZE (0x1000 - 0x200)
+#define FONT_SIZE 80
 #define FONTSET_BYTES_PER_CHAR 5
 
 #define log(msg) printf("%s\n", msg)
@@ -23,11 +28,9 @@ private:
     word PC; // Program counter
     byte delay_timer;
     byte sound_timer;
-
-	byte gfx[GFX_SIZE]; // Graphics
 	byte key[KEY_SIZE]; // Keypad
 
-    byte fontset[80] =
+    byte fontset[FONT_SIZE] =
     {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -47,6 +50,9 @@ private:
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 public:
+    byte gfx[GFX_SIZE]; // Graphics
+    bool drawFlag;
+
 	void init();
 	void loadFile(char* fileName);
 	bool cycle();
