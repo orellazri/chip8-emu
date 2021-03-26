@@ -30,7 +30,7 @@ void Chip8::init()
 void Chip8::loadFile(char *fileName)
 {
     byte buffer[10];
-    FILE* file = fopen(fileName, "rb");
+    FILE *file = fopen(fileName, "rb");
     if (file == NULL)
     {
         fprintf(stderr, "Unable to open file");
@@ -54,7 +54,8 @@ bool Chip8::cycle()
     if (delay_timer > 0)
         delay_timer--;
 
-    if (sound_timer  > 0) {
+    if (sound_timer > 0)
+    {
         if (sound_timer == 1)
         {
             printf("BEEP\n");
@@ -69,17 +70,18 @@ bool Chip8::decodeOpcode()
 {
     byte x, y, n, nn;
     word nnn;
-    x   = (opcode >> 8) & 0x000F; // Lower 4 bits of the high byte
-    y   = (opcode >> 4) & 0x000F; // Lower 4 bits of the high byte
-    n   = opcode & 0x000F; // Lowest 4 bits
-    nn  = opcode & 0x00FF; // Lowest 8 bits
+    x = (opcode >> 8) & 0x000F; // Lower 4 bits of the high byte
+    y = (opcode >> 4) & 0x000F; // Lower 4 bits of the high byte
+    n = opcode & 0x000F; // Lowest 4 bits
+    nn = opcode & 0x00FF; // Lowest 8 bits
     nnn = opcode & 0x0FFF; // Lowest 12 bits
 
     // Check the first 4 bits
     switch (opcode & 0xF000)
     {
         case 0x0000:
-            switch (nn) {
+            switch (nn)
+            {
                 case 0x00E0: // 00E0
                     memset(gfx, 0, sizeof(byte) * GFX_SIZE);
                     drawFlag = true;
@@ -237,7 +239,7 @@ bool Chip8::decodeOpcode()
                             }
                         }
                     }
-                    got_key_press:
+                got_key_press:
                     PC += 2;
                     break;
                 case 0x15: // FX15
@@ -258,9 +260,9 @@ bool Chip8::decodeOpcode()
                     PC += 2;
                     break;
                 case 0x33: // FX33
-                    memory[I]   = (V[x] % 1000) / 100;
-                    memory[I+1] = (V[x] % 100) / 10;
-                    memory[I+2] = (V[x] % 10);
+                    memory[I] = (V[x] % 1000) / 100;
+                    memory[I + 1] = (V[x] % 100) / 10;
+                    memory[I + 2] = (V[x] % 10);
                     PC += 2;
                     break;
                 case 0x55: // FX55

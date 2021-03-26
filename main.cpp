@@ -12,27 +12,28 @@ int main()
     sf::RenderWindow window(sf::VideoMode(GFX_COLS * PIXEL_SCALE, GFX_ROWS * PIXEL_SCALE), "CHIP-8 Emulator");
     window.setFramerateLimit(60);
     sf::Clock clock;
-    float refreshSpeed = 1.f/10.f;
+    float refreshSpeed = 1.f / 10.f;
 
-	Chip8 emu;
-	emu.init();
-	emu.loadFile((char*) "test2.ch8");
+    Chip8 emu;
+    emu.init();
+    emu.loadFile((char *) "test2.ch8");
 
-	while (window.isOpen())
+    while (window.isOpen())
     {
-	    sf::Event event;
-	    while (window.pollEvent(event))
+        sf::Event event;
+        while (window.pollEvent(event))
         {
-	        if (event.type == sf::Event::Closed)
-	            window.close();
+            if (event.type == sf::Event::Closed)
+                window.close();
         }
 
-	    if (clock.getElapsedTime().asSeconds() >= refreshSpeed)
+        if (clock.getElapsedTime().asSeconds() >= refreshSpeed)
         {
             if (!emu.cycle())
                 window.close();
 
-            if (emu.drawFlag) {
+            if (emu.drawFlag)
+            {
                 window.clear(sf::Color::Black);
                 sf::RectangleShape rectangle(sf::Vector2f(PIXEL_SCALE, PIXEL_SCALE));
 
@@ -56,5 +57,5 @@ int main()
         }
     }
 
-	return 0;
+    return 0;
 };
