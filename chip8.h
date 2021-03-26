@@ -28,7 +28,6 @@ private:
     word PC; // Program counter
     byte delay_timer;
     byte sound_timer;
-	byte key[KEY_SIZE]; // Keypad
 
     byte fontset[FONT_SIZE] =
     {
@@ -52,6 +51,7 @@ private:
 public:
     byte gfx[GFX_SIZE]; // Graphics
     bool drawFlag;
+    byte key[KEY_SIZE]; // Keypad
 
 	void init();
 	void loadFile(char* fileName);
