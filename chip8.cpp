@@ -89,6 +89,7 @@ bool Chip8::decodeOpcode()
                     break;
                 case 0x00EE: // 00EE
                     PC = stack[--SP];
+                    //PC += 2; // TODO: Check if this is needed
                     break;
                 default:
                     fprintf(stderr, "Unknown opcode: 0x%X\n", opcode);
@@ -99,8 +100,7 @@ bool Chip8::decodeOpcode()
             PC = nnn;
             break;
         case 0x2000: // 2NNN
-            stack[SP] = PC + 2;
-            SP++;
+            stack[SP++] = PC + 2;
             PC = nnn;
             break;
         case 0x3000: // 3NNN
@@ -110,7 +110,7 @@ bool Chip8::decodeOpcode()
             PC += (V[x] != nn) ? 4 : 2;
             break;
         case 0x5000: // 5XY0
-            PC += (V[x] != V[y]) ? 4 : 2;
+            PC += (V[x] == V[y]) ? 4 : 2;
             break;
         case 0x6000: // 6XNN
             V[x] = nn;
@@ -136,24 +136,24 @@ bool Chip8::decodeOpcode()
                     V[x] = V[x] ^ V[y];
                     break;
                 case 0x04: // 8XY4
-                    V[x] += V[y];
                     V[0xF] = (((int) V[x] + (int) V[y]) > 255) ? 1 : 0; // Carry
+                    V[x] += V[y];
                     break;
                 case 0x05: // 8XY5
+                    V[0xF] = (V[x] > V[y]) ? 1 : 0; // Borrow
                     V[x] -= V[y];
-                    V[0xF] = (V[x] > V[y]) ? 0 : 1; // Borrow
                     break;
                 case 0x06: // 8XY6
                     V[0xF] = V[x] & 0x1;
-                    V[x] = V[x] >> 1;
+                    V[x] = (V[x] >> 1);
                     break;
                 case 0x07: // 8XY7
-                    V[x] = V[y] - V[x];
                     V[0xF] = (V[y] > V[x]) ? 1 : 0;
+                    V[x] = V[y] - V[x];
                     break;
                 case 0x0E: // 8XYE
                     V[0xF] = (V[x] >> 7) & 0x1;
-                    V[x] = V[x] << 1;
+                    V[x] = (V[x] << 1);
                     break;
                 default:
                     fprintf(stderr, "Unknown opcode: 0x%X\n", opcode);
@@ -162,7 +162,6 @@ bool Chip8::decodeOpcode()
 
             PC += 2;
             break;
-
         case 0x9000: // 9XY0
             if (n != 0x0)
             {
@@ -184,8 +183,11 @@ bool Chip8::decodeOpcode()
             break;
         case 0xD000: // DXYN
         {
-            byte pixel;
+            x = V[(opcode & 0x0F00) >> 8];
+            y = V[(opcode & 0x00F0) >> 4];
+
             V[0xF] = 0;
+            byte pixel;
 
             for (byte yline = 0; yline < n; yline++)
             {
@@ -239,7 +241,7 @@ bool Chip8::decodeOpcode()
                             }
                         }
                     }
-                got_key_press:
+                    got_key_press:
                     PC += 2;
                     break;
                 case 0x15: // FX15
@@ -260,7 +262,7 @@ bool Chip8::decodeOpcode()
                     PC += 2;
                     break;
                 case 0x33: // FX33
-                    memory[I] = (V[x] % 1000) / 100;
+                    memory[I]     = (V[x] % 1000) / 100;
                     memory[I + 1] = (V[x] % 100) / 10;
                     memory[I + 2] = (V[x] % 10);
                     PC += 2;
@@ -274,6 +276,7 @@ bool Chip8::decodeOpcode()
                 case 0x65: // FX65
                     for (int i = 0; i <= x; i++)
                         V[i] = memory[I + i];
+                    I += x + 1;
                     PC += 2;
                     break;
                 default:

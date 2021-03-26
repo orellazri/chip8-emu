@@ -12,11 +12,11 @@ int main()
     sf::RenderWindow window(sf::VideoMode(GFX_COLS * PIXEL_SCALE, GFX_ROWS * PIXEL_SCALE), "CHIP-8 Emulator");
     window.setFramerateLimit(60);
     sf::Clock clock;
-    float refreshSpeed = 1.f / 10.f;
+    float refreshSpeed = 1.f / 180.f;
 
     Chip8 emu;
     emu.init();
-    emu.loadFile((char *) "test2.ch8");
+    emu.loadFile((char *) "pong.ch8");
 
     while (window.isOpen())
     {
